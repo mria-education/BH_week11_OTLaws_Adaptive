@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BH Week 11 — OT Law Full-Screen App</title>
+  <style>
+    :root {
+      --bg:#f6f1e8;
+      --panel:#fffaf2;
+      --card:#ffffff;
+      --ink:#241a12;
+      --muted:#6e6258;
+      --line:#ded3c4;
+      --accent:#8b5e34;
+      --accent2:#2f5d50;
+      --soft:#efe3d2;
+      --shadow:0 18px 50px rgba(40,28,16,.12);
+      --radius:22px;
+      --font:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      width:100%;
+      height:100%;
+      margin:0;
+      overflow:hidden;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+      font-size:var(--font);
+      line-height:1.65;
+    }
+    .app{
+      width:100vw;
+      height:100vh;
+      display:grid;
+      grid-template-columns:340px minmax(0,1fr);
+      overflow:hidden;
+    }
+    aside{
+      height:100vh;
+      overflow-y:auto;
+      padding:22px 18px;
+      background:linear-gradient(180deg,#fffaf2,#eee2d2);
+      border-right:1px solid var(--line);
+    }
+    main{
+      height:100vh;
+      overflow-y:auto;
+      padding:34px 44px 90px;
+    }
+    .brand,.card,.hero{
+      background:rgba(255,250,242,.96);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .brand{padding:18px;margin-bottom:18px}
+    .course{
+      font-size:.78rem;
+      font-weight:800;
+      letter-spacing:.05em;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+    h1{
+      font-size:clamp(2.15rem,4.5vw,4.4rem);
+      line-height:1.03;
+      letter-spacing:-.045em;
+      margin:8px 0 12px;
+    }
+    h2{
+      font-size:clamp(1.65rem,2.8vw,2.7rem);
+      line-height:1.12;
+      letter-spacing:-.035em;
+      margin:0 0 18px;
+    }
+    h3{font-size:1.35rem;color:var(--accent2);margin:26px 0 10px}
+    h4{font-size:1.05rem;color:var(--accent);margin:20px 0 8px}
+    p{margin:0 0 15px}
+    .subtitle{font-size:1.08rem;color:var(--muted);max-width:980px}
+    .lang-row{display:flex;gap:8px;margin-top:14px}
+    button{
+      border:0;
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:800;
+      cursor:pointer;
+      background:var(--soft);
+      color:var(--ink);
+      font-size:.92rem;
+    }
+    button.active{background:var(--accent2);color:#fff}
+    .nav{display:grid;gap:8px;margin:14px 0}
+    .nav button{
+      width:100%;
+      text-align:left;
+      border-radius:16px;
+      background:rgba(255,255,255,.78);
+      border:1px solid var(--line);
+      white-space:normal;
+      line-height:1.35;
+    }
+    .nav button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .progress-wrap{margin:18px 0}
+    .progress-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:7px}
+    .progress-track{height:9px;background:#dfd2c0;border-radius:999px;overflow:hidden}
+    .progress-bar{height:100%;width:0;background:var(--accent2);transition:.25s}
+    .section{display:none;max-width:1180px;margin:0 auto}
+    .section.active{display:block;animation:fade .16s ease}
+    @keyframes fade{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .hero{padding:30px;margin-bottom:20px}
+    .card{padding:26px;margin-bottom:20px;background:rgba(255,255,255,.78)}
+    .grid{display:grid;gap:18px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .pill{
+      display:inline-flex;
+      padding:6px 11px;
+      border-radius:999px;
+      background:var(--soft);
+      color:var(--accent2);
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      margin:0 6px 8px 0;
+    }
+    table{width:100%;border-collapse:collapse;margin:16px 0;background:#fff;border-radius:16px;overflow:hidden}
+    th,td{border:1px solid var(--line);padding:12px;vertical-align:top}
+    th{background:var(--soft);text-align:left}
+    textarea{
+      width:100%;
+      min-height:135px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      font:inherit;
+      background:#fffdf8;
+      resize:vertical;
+    }
+    .mcq-option{
+      display:block;
+      width:100%;
+      margin:8px 0;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      text-align:left;
+      cursor:pointer;
+    }
+    .mcq-option.correct{border-color:#2f5d50;background:#e9f2ee}
+    .mcq-option.wrong{border-color:#9d3b31;background:#f8e8e5}
+    .answer{display:none;margin-top:12px;padding:14px;border-radius:16px;background:#fffaf2;border:1px solid var(--line)}
+    .answer.show{display:block}
+    .mobile-toggle{display:none}
+    @media(max-width:900px){
+      body{overflow:auto}
+      .app{display:block;height:auto;min-height:100vh;overflow:auto}
+      aside{height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--line)}
+      main{height:auto;overflow:visible;padding:22px 18px 70px}
+      .grid.two,.grid.three{grid-template-columns:1fr}
+      .mobile-toggle{display:inline-flex;margin-bottom:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="course" data-en="GEK20070-01 · Week 11 · Biblical Hermeneutics" data-ko="GEK20070-01 · 11주차 · 성경해석학"></div>
+        <h2 data-en="The Law(s): Covenant Stipulations for Israel" data-ko="율법서: 이스라엘을 위한 언약 규정"></h2>
+        <p class="subtitle" data-en="Fee & Stuart Ch. 9 · Osborne Ch. 6 · Handong Global University" data-ko="Fee & Stuart 9장 · Osborne 6장 · 한동대학교"></p>
+        <div class="lang-row">
+          <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+          <button id="koBtn" onclick="setLang('ko')">한국어</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span data-en="Progress" data-ko="진행률"></span><span id="progressText">0%</span></div>
+          <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        </div>
+      </div>
+      <div class="nav" id="nav"></div>
+    </aside>
+
+    <main id="main">
+      <section class="section active" id="overview"></section>
+      <section class="section" id="module1"></section>
+      <section class="section" id="module2"></section>
+      <section class="section" id="module3"></section>
+      <section class="section" id="module4"></section>
+      <section class="section" id="module5"></section>
+      <section class="section" id="module6"></section>
+      <section class="section" id="texts"></section>
+      <section class="section" id="mcq"></section>
+      <section class="section" id="spiral"></section>
+      <section class="section" id="synthesis"></section>
+    </main>
+  </div>
+
+<script>
+const state = { lang:'en', active:'overview', visited:new Set(['overview']) };
+
+const navItems = [
+  ['overview','Overview','개요'],
+  ['module1','M1 — Sinai WHERE','M1 — 시나이 WHERE'],
+  ['module2','M2 — Fee: Covenant','M2 — 피: 언약'],
+  ['module3','M3 — Literary Forms','M3 — 문학 형식'],
+  ['module4','M4 — Osborne: Ritual','M4 — 오스본: 제의'],
+  ['module5','M5 — Integration','M5 — 통합'],
+  ['module6','M6 — Synthesis','M6 — 종합'],
+  ['texts','Core Texts','핵심 본문'],
+  ['mcq','MCQ','선다형'],
+  ['spiral','Spiral','나선형'],
+  ['synthesis','Final Synthesis','최종 종합']
+];
+
+const modules = {
+module1:{
+en:`<h2>Module 1 — Opening Frame: Entering the Sinai WHERE</h2>
+<div class="pill">WHERE entered</div><div class="pill">WHO raised</div><div class="pill">WHAT gestured</div>
+<p>When we open Exodus, Leviticus, Numbers, and Deuteronomy, we step into one of the most charged WHEREs in the Old Testament narrative: the relational field of Mount Sinai. This is not primarily a geographic location; it is a constitutive space where Israel’s identity is being re-formed after deliverance.</p>
+<p>The central question is: how can a holy God dwell in the midst of sinful humanity without destroying them? The law is God’s covenantal answer. Israel did not receive the law in order to earn salvation. Israel received the law because God had already delivered them from slavery.</p>
+<h3>1.1 — The Problem of Mythconceptions</h3>
+<table><tr><th>Myth</th><th>Misreading</th></tr>
+<tr><td>Ritualistic Myth</td><td>Dismisses law as boring ritual trivia negated by the cross.</td></tr>
+<tr><td>Historical Myth</td><td>Assumes the ancient cultural gap is too wide to cross.</td></tr>
+<tr><td>Ethical Myth</td><td>Treats OT law as morally inferior to NT love.</td></tr>
+<tr><td>Literary Myth</td><td>Assumes legal genre cannot be meaningfully understood.</td></tr>
+<tr><td>Theological Myth</td><td>Assumes the OT God cannot be reconciled with the NT God of love.</td></tr></table>
+<p>Fee also identifies the opposite danger: the “monkey-see-monkey-do” reader who mechanically replicates ancient codes without a hermeneutical framework. The dismisser and the literalist share the same failure: both refuse disciplined interpretation.</p>
+<h3>1.2 — Tôrâ: Instruction, Not Mere Legislation</h3>
+<p>The Hebrew word <em>tôrâ</em> derives from <em>hôrâ</em>, “to teach” or “to instruct.” It carries the sense of covenantal instruction for life, not merely legalistic regulation. This matters because Torah is parental, covenantal, and formative before it is juridical.</p>
+<div class="card"><strong>Formation Marker:</strong> The student who crosses Module 1 can no longer dismiss Leviticus as irrelevant ritual trivia or read Exodus as merely ancient history. They have entered Sinai as the space where identity, community, holiness, and covenant are constituted together.</div>`,
+ko:`<h2>모듈 1 — 서두 프레임: 시나이 WHERE로 들어가기</h2>
+<div class="pill">WHERE 진입</div><div class="pill">WHO 제기</div><div class="pill">WHAT 암시</div>
+<p>출애굽기, 레위기, 민수기, 신명기를 펼칠 때 우리는 구약 서사에서 가장 강하게 충전된 WHERE 중 하나, 곧 시나이 산의 관계적 장으로 들어간다. 시나이는 단순한 지리적 장소가 아니라, 출애굽 이후 이스라엘의 정체성이 새롭게 형성되는 구성적 공간이다.</p>
+<p>핵심 질문은 이것이다. 거룩하신 하나님은 죄 있는 인간 공동체 가운데 어떻게 거하실 수 있는가? 율법은 이 질문에 대한 하나님의 언약적 응답이다. 이스라엘은 구원을 얻기 위해 율법을 받은 것이 아니다. 하나님께서 이미 그들을 노예 상태에서 구원하셨기 때문에 율법을 받은 것이다.</p>
+<h3>1.1 — 신화적 오해의 문제</h3>
+<table><tr><th>오해</th><th>잘못된 읽기</th></tr>
+<tr><td>제의주의적 오해</td><td>율법을 십자가로 폐기된 지루한 제의 규정으로 치부한다.</td></tr>
+<tr><td>역사주의적 오해</td><td>고대 문화와 현대 사이의 간격이 너무 커서 해석이 불가능하다고 본다.</td></tr>
+<tr><td>윤리적 오해</td><td>구약 율법을 신약의 사랑보다 열등한 도덕 체계로 본다.</td></tr>
+<tr><td>문학적 오해</td><td>법 장르가 너무 낯설어 의미 있게 이해할 수 없다고 여긴다.</td></tr>
+<tr><td>신학적 오해</td><td>구약의 하나님과 신약의 사랑의 하나님은 조화될 수 없다고 전제한다.</td></tr></table>
+<p>Fee는 반대편의 위험도 지적한다. 그것은 고대 법규를 해석 없이 그대로 복제하려는 “보고 그대로 따라 하기”식 독자다. 율법을 버리는 독자와 기계적으로 복제하는 독자는 같은 실패를 공유한다. 둘 다 훈련된 해석을 거부하기 때문이다.</p>
+<h3>1.2 — Tôrâ: 단순한 법률이 아니라 가르침</h3>
+<p>히브리어 <em>tôrâ</em>는 “가르치다, 지시하다”라는 뜻의 <em>hôrâ</em>에서 왔다. 이는 단순한 법률 조항이 아니라 삶을 위한 언약적 가르침을 뜻한다. 따라서 토라는 법정적 규정이기 전에 부모가 자녀에게 주는 지혜처럼, 관계적이고 언약적이며 형성적인 가르침이다.</p>
+<div class="card"><strong>형성 표지:</strong> 모듈 1을 통과한 학생은 더 이상 레위기를 무관한 제의 목록으로 버리거나 출애굽기를 단순한 고대 역사로 읽을 수 없다. 그는 시나이를 정체성, 공동체, 거룩함, 언약이 함께 형성되는 공간으로 들어가게 된다.</div>`
+},
+module2:{
+en:`<h2>Module 2 — Fee’s Method: The Covenant Framework</h2>
+<div class="pill">WHERE illuminated</div><div class="pill">WHO named</div><div class="pill">WHAT opened</div>
+<h3>2.1 — The Suzerainty Covenant</h3>
+<p>Fee’s foundational principle is that Old Testament law must be read as a suzerainty covenant: a binding covenant between the sovereign Lord and Israel as the redeemed covenant people.</p>
+<table><tr><th>Element</th><th>Example</th><th>Function</th></tr>
+<tr><td>Preamble</td><td>“I am the LORD your God”</td><td>Names the covenant Lord.</td></tr>
+<tr><td>Historical Prologue</td><td>“Who brought you out of Egypt”</td><td>Places command after grace.</td></tr>
+<tr><td>Stipulations</td><td>The laws themselves</td><td>Describe covenant life.</td></tr>
+<tr><td>Blessings and Curses</td><td>Deuteronomy 27–28</td><td>Name the covenant consequences.</td></tr></table>
+<h3>2.2 — Discontinuity: What Is Not Renewed</h3>
+<p>Fee argues that Christians are not bound by old-covenant civil and ritual mechanics. Civil laws governed ancient Israel as a theocratic nation-state. Ritual laws governed tabernacle, priesthood, sacrifice, and purity. In Christ’s once-for-all atonement, the ritual mechanics have become obsolete.</p>
+<h3>2.3 — Continuity: The Law of Christ</h3>
+<p>Any Old Testament ethical law that supports the twofold command to love God and neighbor has been renewed in the new covenant and remains binding. The law continues to speak as God’s word for us, even where it is not God’s direct command to us.</p>
+<div class="card"><strong>Formation Marker:</strong> The student can distinguish what is historically particular to ancient Israel, what reveals God’s character, and what is explicitly renewed in the new covenant.</div>`,
+ko:`<h2>모듈 2 — Fee의 방법론: 언약 프레임워크</h2>
+<div class="pill">WHERE 조명</div><div class="pill">WHO 명명</div><div class="pill">WHAT 개방</div>
+<h3>2.1 — 종주권 언약</h3>
+<p>Fee의 핵심 원리는 구약 율법을 종주권 언약으로 읽어야 한다는 것이다. 곧 주권자이신 하나님과 구속받은 언약 백성 이스라엘 사이에 맺어진 구속력 있는 언약으로 읽어야 한다.</p>
+<table><tr><th>요소</th><th>예시</th><th>기능</th></tr>
+<tr><td>전문</td><td>“나는 여호와 너의 하나님이다”</td><td>언약의 주님을 명명한다.</td></tr>
+<tr><td>역사적 서문</td><td>“너를 애굽 땅에서 인도하여 낸”</td><td>명령을 은혜 이후에 위치시킨다.</td></tr>
+<tr><td>규정</td><td>율법 조항들</td><td>언약 백성의 삶을 묘사한다.</td></tr>
+<tr><td>복과 저주</td><td>신명기 27–28장</td><td>언약적 결과를 밝힌다.</td></tr></table>
+<h3>2.2 — 불연속성: 새 언약에서 갱신되지 않은 것</h3>
+<p>Fee에 따르면 그리스도인은 구 언약의 민사법과 제의법의 세부 장치에 묶이지 않는다. 민사법은 고대 이스라엘이라는 신정적 공동체의 사회 질서를 위한 것이고, 제의법은 성막, 제사장직, 희생제사, 정결 규정을 위한 것이다. 그리스도의 단번 속죄 안에서 제의적 장치는 폐기되었다.</p>
+<h3>2.3 — 연속성: 그리스도의 법</h3>
+<p>하나님 사랑과 이웃 사랑이라는 이중 명령을 지지하는 구약의 윤리적 율법은 새 언약 안에서 갱신되며 여전히 구속력을 가진다. 따라서 율법은 직접적 명령이 아닌 경우에도 하나님의 성품을 드러내는 하나님의 말씀으로 우리에게 말한다.</p>
+<div class="card"><strong>형성 표지:</strong> 학생은 고대 이스라엘에 특수한 것, 하나님의 성품을 계시하는 것, 그리고 새 언약 안에서 명시적으로 갱신된 것을 구별할 수 있게 된다.</div>`
+},
+module3:{
+en:`<h2>Module 3 — Literary Forms: Apodictic and Casuistic Law</h2>
+<div class="pill">WHERE added</div><div class="pill">WHO clarified</div><div class="pill">WHAT contributed</div>
+<h3>3.1 — Law as Paradigm, Not Exhaustive Code</h3>
+<p>Fee argues that Old Testament law was never intended as an exhaustive legal code. It functions paradigmatically: it sets standards by example rather than by technical comprehensiveness.</p>
+<h3>3.2 — Two Major Forms</h3>
+<table><tr><th>Form</th><th>Description</th><th>Interpretive Task</th></tr>
+<tr><td>Apodictic Law</td><td>Direct commands: “You shall” / “You shall not.”</td><td>Discern the standard revealed by the command.</td></tr>
+<tr><td>Casuistic Law</td><td>Conditional case law: “If” / “When.”</td><td>Move from specific case to underlying principle.</td></tr></table>
+<h3>3.3 — The Hermeneutical Movement</h3>
+<p>Specific form → underlying paradigm → theological principle → contemporary embodied practice. This movement prevents both mechanical literalism and careless dismissal.</p>
+<div class="card"><strong>Formation Marker:</strong> The student learns to move from ancient legal form to enduring theological and ethical significance.</div>`,
+ko:`<h2>모듈 3 — 문학 형식: 절대법과 판례법</h2>
+<div class="pill">WHERE 추가</div><div class="pill">WHO 명료화</div><div class="pill">WHAT 기여</div>
+<h3>3.1 — 율법은 포괄적 법전이 아니라 패러다임이다</h3>
+<p>Fee는 구약 율법이 모든 상황을 빠짐없이 다루는 포괄적 법전으로 주어진 것이 아니라고 주장한다. 율법은 패러다임적으로 기능한다. 즉 기술적으로 모든 경우를 열거하는 것이 아니라, 사례를 통해 기준을 제시한다.</p>
+<h3>3.2 — 두 주요 형식</h3>
+<table><tr><th>형식</th><th>설명</th><th>해석 과제</th></tr>
+<tr><td>절대법</td><td>“너는 …하라/하지 말라”와 같은 직접 명령.</td><td>명령이 드러내는 기준을 분별한다.</td></tr>
+<tr><td>판례법</td><td>“만일/언제”로 시작하는 조건적 사례 법.</td><td>특정 사례에서 기저 원리로 이동한다.</td></tr></table>
+<h3>3.3 — 해석학적 이동</h3>
+<p>특정 형식 → 기저 패러다임 → 신학적 원리 → 오늘의 embodied practice로 이동한다. 이 이동은 기계적 문자주의와 성급한 폐기를 모두 막아 준다.</p>
+<div class="card"><strong>형성 표지:</strong> 학생은 고대 법 형식에서 지속적인 신학적·윤리적 의미로 이동하는 법을 배우게 된다.</div>`
+},
+module4:{
+en:`<h2>Module 4 — Osborne’s Method: Holiness, Purity, and Ritual Theology</h2>
+<div class="pill">WHERE deepened</div><div class="pill">WHO expanded</div><div class="pill">WHAT enriched</div>
+<h3>4.1 — Four Law Collections</h3>
+<table><tr><th>Collection</th><th>Meaning</th></tr>
+<tr><td>Decalogue and Book of the Covenant</td><td>Foundational principles of covenant life.</td></tr>
+<tr><td>Tabernacle Laws</td><td>The tabernacle as cosmic microcosm and Eden-like dwelling space.</td></tr>
+<tr><td>Leviticus</td><td>Holiness of those approaching the sanctuary; sacrifice, purity, and atonement.</td></tr>
+<tr><td>Deuteronomy 12–26</td><td>Covenant renewal centered on total love for Yahweh and mercy toward the weak.</td></tr></table>
+<h3>4.2 — Holy/Common and Clean/Unclean</h3>
+<p>Holy/common concerns status before God. Clean/unclean concerns condition before God. A priest may possess holy status and yet fall into an unclean condition. Many impurities are natural and morally neutral, but they still matter because they regulate approach to God’s holiness.</p>
+<h3>4.3 — Sacrifice as Theological Drama</h3>
+<p>The sacrificial system operates as homage and thanksgiving, communion with God, and atonement or purification. Atonement, <em>kipper</em>, means wiping away, purging, or covering, restoring the possibility of fellowship with a holy God.</p>
+<div class="card"><strong>Formation Marker:</strong> The student can no longer dismiss purity and sacrifice as primitive ritual. They begin to grasp why New Testament writers use sacrificial language to describe Christ’s work.</div>`,
+ko:`<h2>모듈 4 — Osborne의 방법론: 거룩함, 정결, 제의 신학</h2>
+<div class="pill">WHERE 심화</div><div class="pill">WHO 확장</div><div class="pill">WHAT 풍요화</div>
+<h3>4.1 — 네 가지 율법 모음</h3>
+<table><tr><th>모음</th><th>의미</th></tr>
+<tr><td>십계명과 언약서</td><td>언약적 삶의 기초 원리.</td></tr>
+<tr><td>성막 법규</td><td>성막은 우주의 축소판이며 에덴과 같은 하나님 임재의 공간이다.</td></tr>
+<tr><td>레위기</td><td>성소에 접근하는 자들의 거룩함, 제사, 정결, 속죄를 다룬다.</td></tr>
+<tr><td>신명기 12–26장</td><td>야훼를 향한 전인적 사랑과 약자를 향한 자비를 중심으로 한 언약 갱신.</td></tr></table>
+<h3>4.2 — 거룩/일상과 정결/부정</h3>
+<p>거룩/일상은 하나님 앞에서의 지위를 가리킨다. 정결/부정은 하나님 앞에서의 상태를 가리킨다. 제사장은 거룩한 지위를 가지고 있어도 부정한 상태에 빠질 수 있다. 많은 부정은 자연스럽고 도덕적으로 중립적이지만, 하나님의 거룩함에 접근하는 방식을 규정하기 때문에 중요하다.</p>
+<h3>4.3 — 신학적 드라마로서의 제사</h3>
+<p>제사 제도는 경의와 감사, 하나님과의 교제, 그리고 속죄 또는 정화라는 차원에서 작동한다. 속죄를 뜻하는 <em>kipper</em>는 닦아냄, 제거함, 덮음을 의미하며, 거룩하신 하나님과의 교제 가능성을 회복한다.</p>
+<div class="card"><strong>형성 표지:</strong> 학생은 더 이상 정결과 제사를 원시적 제의로 치부할 수 없다. 그는 신약 저자들이 왜 그리스도의 사역을 제사 언어로 설명하는지 이해하기 시작한다.</div>`
+},
+module5:{
+en:`<h2>Module 5 — Integration: Fee and Osborne in Dialogue</h2>
+<div class="pill">WHERE converged</div><div class="pill">WHO challenged</div><div class="pill">WHAT synthesized</div>
+<h3>5.1 — Shared Foundation: Covenant Grace</h3>
+<p>Both authors agree that the law was never given as a legalistic means of earning salvation. It was the gracious gift of a God who had already saved his people.</p>
+<h3>5.2 — Productive Tension</h3>
+<table><tr><th>Fee</th><th>Osborne</th></tr>
+<tr><td>Emphasizes discontinuity. Civil and ritual mechanics are obsolete; ethical paradigms remain instructive.</td><td>Emphasizes continuity. Even obsolete ritual laws reveal holiness and point toward Christ’s fulfillment.</td></tr>
+<tr><td>Primarily ethical and paradigmatic.</td><td>Primarily theological and eschatological.</td></tr></table>
+<h3>5.3 — Two Questions for Every Law</h3>
+<p><strong>Fee’s Question:</strong> What ethical paradigm is embedded in this law?</p>
+<p><strong>Osborne’s Question:</strong> What does this law reveal about God’s holiness and the depth of atonement fulfilled in Christ?</p>
+<h3>5.4 — Ancient Near Eastern Comparison</h3>
+<p>Compared with the Code of Hammurabi, Israel’s Torah resists class-stratified justice. Its prohibition against murder is not calibrated by social class. This reveals Torah’s advanced moral vision within its ancient context.</p>`,
+ko:`<h2>모듈 5 — 통합: Fee와 Osborne의 대화</h2>
+<div class="pill">WHERE 수렴</div><div class="pill">WHO 도전</div><div class="pill">WHAT 종합</div>
+<h3>5.1 — 공통 기반: 언약 은혜</h3>
+<p>두 저자는 율법이 구원을 얻기 위한 율법주의적 수단으로 주어진 것이 아니라는 데 동의한다. 율법은 이미 자기 백성을 구원하신 하나님이 주신 은혜로운 선물이다.</p>
+<h3>5.2 — 생산적 긴장</h3>
+<table><tr><th>Fee</th><th>Osborne</th></tr>
+<tr><td>불연속성을 강조한다. 민사법과 제의법의 세부 장치는 폐기되었지만, 윤리적 패러다임은 계속 가르친다.</td><td>연속성을 강조한다. 폐기된 제의법도 하나님의 거룩함을 계시하며 그리스도의 성취를 향해 나아간다.</td></tr>
+<tr><td>주로 윤리적·패러다임적 접근이다.</td><td>주로 신학적·종말론적 접근이다.</td></tr></table>
+<h3>5.3 — 모든 율법에 던질 두 질문</h3>
+<p><strong>Fee의 질문:</strong> 이 율법 안에 어떤 윤리적 패러다임이 들어 있는가?</p>
+<p><strong>Osborne의 질문:</strong> 이 율법은 하나님의 거룩함과 그리스도 안에서 성취된 속죄의 깊이에 대해 무엇을 계시하는가?</p>
+<h3>5.4 — 고대 근동 비교</h3>
+<p>함무라비 법전과 비교할 때 이스라엘의 토라는 계급별로 차등화된 정의를 거부한다. 살인 금지는 사회적 계급에 따라 달라지지 않는다. 이는 고대적 맥락 안에서 토라가 지닌 진전된 윤리적 비전을 보여 준다.</p>`
+},
+module6:{
+en:`<h2>Module 6 — Synthesis and Re-Entry: The Formational Crossing</h2>
+<div class="pill">Full WHERE</div><div class="pill">Full WHO</div><div class="pill">Full WHAT</div>
+<h3>6.1 — Three Charges in the Sinai Field</h3>
+<p><strong>Holiness and Presence:</strong> God is absolutely holy, yet insists on dwelling among his people. Torah provides the structure by which both realities can be held together.</p>
+<p><strong>Grace and Demand:</strong> The law is given to a people already redeemed. It is not the condition of salvation but instruction for life. Yet its demands expose the human inability to fulfill righteousness apart from divine grace.</p>
+<p><strong>Particularity and Universality:</strong> The laws are historically particular, yet each particular law reveals something universal about God’s character, justice, mercy, and holiness.</p>
+<h3>6.2 — Dismantling Prior Selfhoods</h3>
+<p>The dismisser discovers that Torah is not primitive religious debris but a theologically sophisticated covenantal witness. The legalist discovers that Torah is not a timeless checklist for mechanical replication but a covenantally located instruction fulfilled and reconfigured in Christ.</p>
+<h3>6.3 — The Full WHAT</h3>
+<p>The vocation of the new-covenant reader is to embody the law of Christ by reading Torah to encounter God’s holiness, understand the depth of Christ’s atonement, and translate ancient principles of justice and mercy into radical love for God and neighbor.</p>`,
+ko:`<h2>모듈 6 — 종합과 재진입: 형성적 건넘</h2>
+<div class="pill">완전한 WHERE</div><div class="pill">완전한 WHO</div><div class="pill">완전한 WHAT</div>
+<h3>6.1 — 시나이 장 안의 세 가지 긴장</h3>
+<p><strong>거룩함과 임재:</strong> 하나님은 절대적으로 거룩하시지만 동시에 자기 백성 가운데 거하시기를 원하신다. 토라는 이 두 현실이 함께 유지될 수 있도록 주어진 구조다.</p>
+<p><strong>은혜와 요구:</strong> 율법은 이미 구속받은 백성에게 주어진다. 율법은 구원의 조건이 아니라 삶을 위한 가르침이다. 그러나 그 요구는 신적 은혜 없이는 의를 완성할 수 없는 인간의 무능함을 드러낸다.</p>
+<p><strong>특수성과 보편성:</strong> 율법은 역사적으로 특수하지만, 각각의 특수한 법은 하나님의 성품, 정의, 자비, 거룩함에 대한 보편적 계시를 담고 있다.</p>
+<h3>6.2 — 이전 자아들의 해체</h3>
+<p>율법을 버리는 독자는 토라가 원시적 종교 잔재가 아니라 신학적으로 정교한 언약 증언임을 발견한다. 율법주의자는 토라가 기계적으로 복제할 영원한 체크리스트가 아니라, 그리스도 안에서 성취되고 재구성된 언약적 가르침임을 발견한다.</p>
+<h3>6.3 — 완전한 WHAT</h3>
+<p>새 언약 독자의 소명은 토라를 읽으며 하나님의 거룩함을 만나고, 그리스도의 속죄의 깊이를 이해하며, 정의와 자비의 고대 원리를 오늘의 하나님 사랑과 이웃 사랑으로 번역함으로써 그리스도의 법을 embody하는 것이다.</p>`
+}
+};
+
+const textCards = [
+['Exodus 20:1–17 — The Decalogue','출애굽기 20:1–17 — 십계명',
+ 'Apodictic law · Suzerainty covenant structure · Paradigmatic ethical demands',
+ '절대법 · 종주권 언약 구조 · 패러다임적 윤리 요구',
+ 'How does the historical prologue before the stipulations reveal the relationship between redemption and obligation?',
+ '규정 앞에 놓인 역사적 서문은 구속과 의무의 관계를 어떻게 드러내는가?'],
+['Leviticus 1:1–9 — The Burnt Offering','레위기 1:1–9 — 번제',
+ 'Sacrificial system · Total dedication · Atonement anticipation',
+ '제사 제도 · 전적 헌신 · 속죄의 예고',
+ 'What does the total consumption of the offering reveal about the ethical and theological demand of worship?',
+ '제물이 완전히 태워지는 것은 예배의 윤리적·신학적 요구에 대해 무엇을 드러내는가?'],
+['Leviticus 19:9–18 — Holiness Code Extracts','레위기 19:9–18 — 거룩 법전 발췌',
+ 'Gleaning laws · Love of neighbor · Economic justice',
+ '이삭 줍기 법 · 이웃 사랑 · 경제 정의',
+ 'What ethical paradigm is embedded in leaving the edges of the field for the poor and the alien?',
+ '가난한 자와 이방인을 위해 밭 가장자리를 남기는 법 안에는 어떤 윤리적 패러다임이 담겨 있는가?'],
+['Leviticus 16:1–22 — The Day of Atonement','레위기 16:1–22 — 속죄일',
+ 'Ritual law · Kipper theology · Scapegoat',
+ '제의법 · kipper 신학 · 속죄 염소',
+ 'How do the two goats address both purification and removal of sin?',
+ '두 염소는 죄의 정화와 제거를 각각 어떻게 다루는가?'],
+['Deuteronomy 15:1–18 — Sabbatical Year and Servant Release','신명기 15:1–18 — 안식년과 종 해방',
+ 'Casuistic law · Economic justice · Liberation paradigm',
+ '판례법 · 경제 정의 · 해방 패러다임',
+ 'How does the Exodus memory function as the warrant for economic release?',
+ '출애굽 기억은 경제적 해방의 근거로 어떻게 작동하는가?'],
+['Deuteronomy 6:4–9 — The Shema','신명기 6:4–9 — 쉐마',
+ 'Total love of God · Daily formation · Generational transmission',
+ '하나님을 향한 전인적 사랑 · 일상 형성 · 세대 전수',
+ 'How does the Shema embed covenant love into daily embodied practice?',
+ '쉐마는 언약적 사랑을 일상의 embodied practice 안에 어떻게 새기는가?']
+];
+
+const mcqs = [
+['According to Fee and Stuart, tôrâ is best understood as:', 'Fee와 Stuart에 따르면 tôrâ는 무엇으로 이해하는 것이 가장 적절한가?',
+ ['A comprehensive legal code','Teaching or instruction for daily conduct','A ritual system for earning favor','The Greek word nomos'],
+ ['포괄적 법전','일상적 삶을 위한 가르침과 지시','호의를 얻기 위한 제의 체계','그리스어 nomos'],
+ 1],
+['Fee’s covenant reading means Christians:', 'Fee의 언약적 읽기에 따르면 그리스도인은:',
+ ['have no relationship to OT law','must keep all unrepealed laws','are not bound by old-covenant stipulations, but still hear the law as God’s word','must apply civil and ritual laws directly'],
+ ['구약 율법과 아무 관계가 없다','폐지되지 않은 모든 법을 지켜야 한다','구 언약 규정에 묶이지 않지만 율법을 하나님의 말씀으로 듣는다','민사법과 제의법을 직접 적용해야 한다'],
+ 2],
+['Osborne’s holy/common and clean/unclean distinction shows that:', 'Osborne의 거룩/일상과 정결/부정 구분은 무엇을 보여 주는가?',
+ ['impurity always equals sin','purity laws were merely hygienic','status and condition are distinct','only priests could become unclean'],
+ ['부정은 항상 죄와 같다','정결법은 단순한 위생법이었다','지위와 상태는 구별된다','제사장만 부정해질 수 있었다'],
+ 2],
+['The gleaning laws should first be read by identifying:', '이삭 줍기 법은 먼저 무엇을 식별하며 읽어야 하는가?',
+ ['why they are irrelevant','how to copy them mechanically','the ethical paradigm embedded in the agricultural regulation','how Christ cancels all concern for the poor'],
+ ['왜 무관한지','어떻게 기계적으로 복제할지','농업 규정 안에 담긴 윤리적 패러다임','그리스도가 가난한 자에 대한 관심을 어떻게 취소했는지'],
+ 2],
+['Fee and Osborne are best understood as:', 'Fee와 Osborne은 어떻게 이해하는 것이 가장 적절한가?',
+ ['contradictory','complementary','identical','purely historical-critical'],
+ ['모순적','상호보완적','동일함','순수한 역사비평적 접근'],
+ 1],
+['The law of Christ refers to:', '그리스도의 법은 무엇을 가리키는가?',
+ ['a new code replacing Torah','the Sermon as stricter law','love of God and neighbor fulfilling Torah’s ethical paradigms','Jesus’s example without written instruction'],
+ ['토라를 대체하는 새 법전','더 엄격한 법으로서의 산상수훈','토라의 윤리적 패러다임을 성취하는 하나님 사랑과 이웃 사랑','기록된 가르침 없는 예수의 모범'],
+ 2],
+['The tabernacle as microcosm means:', '성막이 우주의 축소판이라는 말은 무엇을 의미하는가?',
+ ['it is merely architecture','it points to God’s intention to dwell with his people','churches must replicate it','it is irrelevant'],
+ ['단순한 건축이다','하나님이 자기 백성과 함께 거하시려는 뜻을 드러낸다','교회가 그대로 복제해야 한다','무관하다'],
+ 1]
+];
+
+function t(en,ko){return state.lang==='en'?en:ko}
+
+function renderChrome(){
+  document.querySelectorAll('[data-en]').forEach(el=>{ el.innerHTML = t(el.dataset.en, el.dataset.ko); });
+  document.getElementById('enBtn').classList.toggle('active',state.lang==='en');
+  document.getElementById('koBtn').classList.toggle('active',state.lang==='ko');
+  const nav = document.getElementById('nav');
+  nav.innerHTML = navItems.map(i=>`<button class="${state.active===i[0]?'active':''}" onclick="go('${i[0]}')">${t(i[1],i[2])}</button>`).join('');
+}
+
+function renderOverview(){
+  document.getElementById('overview').innerHTML = `
+  <div class="hero">
+    <div class="course">${t('GEK20070-01 · Biblical Hermeneutics','GEK20070-01 · 성경해석학')}</div>
+    <h1>${t('The Law(s): Covenant Stipulations for Israel','율법서: 이스라엘을 위한 언약 규정')}</h1>
+    <p class="subtitle">${t('Students move from reading Old Testament law as a burdensome, obsolete checklist to engaging it as God’s gracious covenantal tôrâ: instruction that reveals divine holiness, human need, covenant identity, and fulfillment in Christ.','학생들은 구약 율법을 부담스럽고 시대에 뒤처진 규정 목록으로 읽는 것에서 벗어나, 하나님의 은혜로운 언약적 tôrâ, 곧 하나님의 거룩함과 인간의 필요, 언약 정체성, 그리고 그리스도 안의 성취를 드러내는 가르침으로 읽게 된다.')}</p>
+  </div>
+  <div class="grid three">
+    <div class="card"><h3>WHERE</h3><p>${t('Mount Sinai as a relational covenant field where God reconstitutes a people delivered from slavery.','시나이는 노예 상태에서 구원받은 백성을 하나님께서 새롭게 구성하시는 관계적 언약 장이다.')}</p></div>
+    <div class="card"><h3>WHO</h3><p>${t('From dismisser or legalist to new-covenant reader who encounters God’s holiness through Torah.','율법을 버리는 독자나 율법주의자에서, 토라를 통해 하나님의 거룩함을 만나는 새 언약 독자로 이동한다.')}</p></div>
+    <div class="card"><h3>WHAT</h3><p>${t('Embody the law of Christ by translating Torah’s ethical and theological paradigms into love of God and neighbor.','토라의 윤리적·신학적 패러다임을 하나님 사랑과 이웃 사랑으로 번역하여 그리스도의 법을 embody한다.')}</p></div>
+  </div>
+  <div class="card"><h3>${t('Key Term Lexicon','핵심 용어 사전')}</h3>
+    <table>
+      <tr><th>${t('Term','용어')}</th><th>${t('Definition','정의')}</th></tr>
+      <tr><td>Tôrâ</td><td>${t('Teaching or instruction for daily conduct; not primarily legalism.','일상적 삶을 위한 가르침 또는 지시. 일차적으로 율법주의가 아니다.')}</td></tr>
+      <tr><td>${t('Suzerainty Covenant','종주권 언약')}</td><td>${t('Binding covenant between sovereign Lord and dependent covenant people.','주권자이신 주님과 의존적 언약 백성 사이의 구속력 있는 언약.')}</td></tr>
+      <tr><td>${t('Apodictic Law','절대법')}</td><td>${t('Direct absolute command.','직접적이고 절대적인 명령.')}</td></tr>
+      <tr><td>${t('Casuistic Law','판례법')}</td><td>${t('Conditional case law introduced by if/when.','만일/언제로 시작하는 조건적 사례 법.')}</td></tr>
+      <tr><td>Kipper</td><td>${t('Atonement as wiping away, purging, or covering.','닦아냄, 제거함, 덮음으로서의 속죄.')}</td></tr>
+    </table>
+  </div>`;
+}
+
+function renderModules(){
+  Object.keys(modules).forEach(id=>{
+    document.getElementById(id).innerHTML = `<div class="card">${modules[id][state.lang]}</div>`;
+  });
+}
+
+function renderTexts(){
+  document.getElementById('texts').innerHTML = `<div class="hero"><h2>${t('Core Texts and Questions','핵심 본문과 질문')}</h2><p class="subtitle">${t('Each card contains matched content only for its text, preventing the old long-page problem.','각 카드는 해당 본문에 맞는 내용만 담아 이전의 긴 전체 페이지 문제를 해결한다.')}</p></div>` +
+  `<div class="grid two">` + textCards.map(c=>`
+    <div class="card">
+      <h3>${t(c[0],c[1])}</h3>
+      <p><span class="pill">${t(c[2],c[3])}</span></p>
+      <h4>EQ</h4><p>${t(c[4],c[5])}</p>
+      <h4>HQ / WHERE-WHO-WHAT</h4>
+      <textarea placeholder="${t('Write your exegetical-hermeneutical response here...','여기에 주해-해석학적 답변을 작성하세요...')}"></textarea>
+    </div>`).join('') + `</div>`;
+}
+
+function renderMCQ(){
+  document.getElementById('mcq').innerHTML = `<div class="hero"><h2>${t('Self-Assessment MCQ','자기 점검 선다형')}</h2><p class="subtitle">${t('Answer each question. Feedback appears immediately.','각 질문에 답하세요. 피드백이 즉시 표시됩니다.')}</p></div>` +
+  mcqs.map((q,idx)=>`
+    <div class="card">
+      <h3>Q${idx+1}. ${t(q[0],q[1])}</h3>
+      ${q[2].map((opt,i)=>`<button class="mcq-option" onclick="checkAnswer(this,${i},${q[4]},'a${idx}')">${String.fromCharCode(65+i)}. ${t(opt,q[3][i])}</button>`).join('')}
+      <div class="answer" id="a${idx}">${t('Correct answer: ','정답: ')}${String.fromCharCode(65+q[4])}</div>
+    </div>`).join('');
+}
+
+function renderSpiral(){
+  document.getElementById('spiral').innerHTML = `<div class="hero"><h2>${t('Hermeneutical Spiral — Old Testament Law','해석학적 나선형 — 구약 율법')}</h2><p class="subtitle">${t('The spiral does not end; it deepens the reader’s movement from pre-understanding to transformed practice.','나선형은 끝나지 않는다. 독자의 이동을 선이해에서 변화된 실천으로 깊게 만든다.')}</p></div>
+  <div class="card">
+  <table>
+    <tr><th>${t('Stage','단계')}</th><th>${t('OT Law Application','구약 율법 적용')}</th></tr>
+    <tr><td>1. ${t('Pre-Understanding','선이해')}</td><td>${t('Mythconceptions and legalistic replication.','신화적 오해와 율법주의적 복제.')}</td></tr>
+    <tr><td>2. ${t('Genre Recognition','장르 인식')}</td><td>${t('Suzerainty covenant; apodictic and casuistic forms.','종주권 언약, 절대법과 판례법.')}</td></tr>
+    <tr><td>3. ${t('Historical Context','역사적 맥락')}</td><td>${t('Sinai, Egypt, Israel’s re-formation, ANE parallels.','시나이, 애굽, 이스라엘 재형성, 고대 근동 비교.')}</td></tr>
+    <tr><td>4. ${t('Literary Analysis','문학 분석')}</td><td>${t('Four law collections and their structure.','네 가지 율법 모음과 그 구조.')}</td></tr>
+    <tr><td>5. ${t('Theological Synthesis','신학적 종합')}</td><td>${t('Holiness, purity, sacrifice, atonement, covenant grace.','거룩함, 정결, 제사, 속죄, 언약 은혜.')}</td></tr>
+    <tr><td>6. ${t('Contextualization','맥락화')}</td><td>${t('Law of Christ and ethical paradigm translation.','그리스도의 법과 윤리적 패러다임 번역.')}</td></tr>
+    <tr><td>7. ${t('Transformed Reader','변화된 독자')}</td><td>${t('No longer dismisser or legalist, but new-covenant reader.','더 이상 폐기자나 율법주의자가 아니라 새 언약 독자.')}</td></tr>
+  </table></div>`;
+}
+
+function renderSynthesis(){
+  document.getElementById('synthesis').innerHTML = `<div class="hero"><h2>${t('Student Synthesis and Formation Questions','학생 종합과 형성 질문')}</h2></div>
+  <div class="card"><h3>${t('Model Synthesis Statement','모범 종합 진술')}</h3>
+  <p>${t('When reading Old Testament laws, I must understand them first as God’s gracious covenant instructions — tôrâ — given to shape Israel into a holy people after redemption from Egypt. Fee teaches me to distinguish obsolete covenant mechanics from enduring ethical paradigms. Osborne teaches me that even obsolete ritual laws reveal God’s holiness and the profound theology of atonement fulfilled in Christ.','구약 율법을 읽을 때 나는 그것을 먼저 하나님의 은혜로운 언약적 가르침, 곧 tôrâ로 이해해야 한다. 토라는 애굽에서 구속받은 이스라엘을 거룩한 백성으로 형성하기 위해 주어진 것이다. Fee는 폐기된 언약적 장치와 지속되는 윤리적 패러다임을 구별하도록 가르친다. Osborne은 폐기된 제의법조차 하나님의 거룩함과 그리스도 안에서 성취된 속죄 신학의 깊이를 계시한다고 가르친다.')}</p>
+  <textarea placeholder="${t('Write your own synthesis statement...','나만의 종합 진술을 작성하세요...')}"></textarea></div>
+  <div class="grid two">
+    <div class="card"><h3>WHERE</h3><p>${t('Where are you reading from: legalism, dismissal, or covenantal instruction?','당신은 어디에서 읽고 있는가: 율법주의, 폐기, 또는 언약적 가르침의 자리인가?')}</p><textarea></textarea></div>
+    <div class="card"><h3>WHO</h3><p>${t('Who are you becoming through this reading of Torah?','토라 읽기를 통해 당신은 어떤 사람이 되어 가고 있는가?')}</p><textarea></textarea></div>
+    <div class="card"><h3>WHAT</h3><p>${t('What embodied practice does this text demand in your context?','이 본문은 당신의 맥락에서 어떤 embodied practice를 요구하는가?')}</p><textarea></textarea></div>
+    <div class="card"><h3>${t('Etic Push','에틱 추진')}</h3><p>${t('By whose side is Torah calling you to stand this week?','이번 주 토라는 당신에게 누구의 곁에 서라고 부르는가?')}</p><textarea></textarea></div>
+  </div>
+  <div class="card"><button onclick="exportReflections()">${t('Export All Reflections','모든 성찰 내보내기')}</button></div>`;
+}
+
+function renderAll(){
+  renderChrome();
+  renderOverview();
+  renderModules();
+  renderTexts();
+  renderMCQ();
+  renderSpiral();
+  renderSynthesis();
+  updateSections();
+  updateProgress();
+}
+
+function updateSections(){
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===state.active));
+  document.querySelectorAll('#nav button').forEach((b,i)=>b.classList.toggle('active',navItems[i][0]===state.active));
+}
+
+function go(id){
+  state.active=id;
+  state.visited.add(id);
+  updateSections();
+  renderChrome();
+  updateProgress();
+  document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+}
+
+function setLang(lang){
+  state.lang=lang;
+  document.documentElement.lang=lang;
+  renderAll();
+}
+
+function updateProgress(){
+  const pct=Math.round((state.visited.size/navItems.length)*100);
+  document.getElementById('progressText').textContent=pct+'%';
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function checkAnswer(btn,choice,correct,answerId){
+  const wrap=btn.parentElement;
+  wrap.querySelectorAll('.mcq-option').forEach(b=>b.classList.remove('correct','wrong'));
+  btn.classList.add(choice===correct?'correct':'wrong');
+  wrap.querySelectorAll('.mcq-option')[correct].classList.add('correct');
+  document.getElementById(answerId).classList.add('show');
+}
+
+function exportReflections(){
+  const text=[...document.querySelectorAll('textarea')].map((t,i)=>`Reflection ${i+1}:\n${t.value}`).join('\n\n---\n\n');
+  const blob=new Blob([text],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='BH_Week11_reflections.txt'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderAll();
+</script>
+</body>
+</html>
